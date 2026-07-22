@@ -58,6 +58,8 @@ Si no tenés GPU local (o querés no ocupar la tuya), se entrena en **Google Col
 JAX/MJX/Brax puro, ideal para una VM con GPU. La viz NO corre en Colab; ahí **solo se entrena** y
 después te bajás el `.params`. Notebook + instrucciones en [`colab/`](colab/README.md).
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zalotron/AI-Human/blob/main/colab/train_aihuman.ipynb)
+
 Incluye elegir **arrancar de 0 o continuar** desde un `.params` (botón para subirlo), y persistir
 en Google Drive para reanudar tras una desconexión. El checkpoint se controla con la env var
 `MJX_SAVE_PATH` (default `mjx/mjx_policy.params`).

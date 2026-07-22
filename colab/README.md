@@ -1,5 +1,7 @@
 # Entrenar en Google Colab
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Zalotron/AI-Human/blob/main/colab/train_aihuman.ipynb)
+
 Notebook para entrenar el humanoide en la GPU de Colab (MJX + Brax PPO). La **viz** (Electron)
 no corre en Colab: acá **solo se entrena**, después te bajás el `.params` y visualizás local.
 
