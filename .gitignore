@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Node / Electron
+node_modules/
+
+# MJX / JAX
+mjx/.jax_cache/
+
+# Checkpoints de la politica (artefactos de training, se regeneran; usar Releases/Drive si hace falta compartir)
+*.params
+
+# Modelo SMPL crudo: >100 MB (excede el limite de GitHub) y licencia que prohibe redistribuirlo.
+# Descargar aparte desde https://smpl.is.tue.mpg.de/ (requiere registro).
+assets/SMPL_MALE.pkl
+*.pkl
+
+# Artefactos de runtime (se regeneran solos)
+MUJOCO_LOG.TXT
+env/*_tmp.xml
+assets/_old_tmp.glb
+
+# OS junk
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+# Entorno GPU para MJX — instalar DENTRO de WSL2 (Ubuntu) con driver NVIDIA en Windows.
+#
+# RECOMENDADO (dejar que pip resuelva versiones compatibles entre jax/mjx/brax):
+#   pip install --upgrade "jax[cuda12]" mujoco mujoco-mjx brax
+#
+# "jax[cuda12]" trae las libs de CUDA 12 como wheels de pip (cuDNN etc.), asi que NO
+# hace falta instalar CUDA a nivel sistema: alcanza con el driver NVIDIA de Windows
+# (que WSL2 expone a Linux automaticamente).
+#
+# Si hay conflicto de versiones, este set fue consistente al momento de escribir:
+jax[cuda12]
+mujoco
+mujoco-mjx
+brax

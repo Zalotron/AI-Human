@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Human — Config Ragdoll (límites)</title>
+  <link rel="stylesheet" href="/style.css" />        <!-- estilos reusados de la viz principal -->
+  <link rel="stylesheet" href="/config.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/three.module.js",
+      "three/addons/": "/vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- PANEL IZQUIERDO -->
+  <aside id="panel">
+    <div class="title">Config <span class="accent">Ragdoll</span></div>
+    <button id="btn-save" class="big-btn save" title="Guardar límites en joint_limits.json">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+        <path d="M8 3v5h7"/>
+        <rect x="7.5" y="12.5" width="9" height="6.5" rx="1"/>
+      </svg>
+      <span>Guardar configuración</span>
+    </button>
+    <div class="transport">
+      <button id="btn-reset" class="ui-btn icon-btn" title="Reset (pose idle)" aria-label="Reset">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+      </button>
+      <button id="btn-play" class="ui-btn icon-btn" title="Play / Pause" aria-label="Play/Pause">
+        <svg id="ic-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z"/></svg>
+      </button>
+    </div>
+    <div id="hint">clic izq: seleccionar parte · arrastrar gizmo: rotar (dentro de límites) · clic der: agarrar y arrastrar la parte · rueda pulsada: paneo · clic en el fondo: deseleccionar</div>
+
+    <!-- reward de "parado" para la pose actual (debug: verificar términos, ej. acople cadera→rodilla) -->
+    <div id="reward-panel">
+      <div class="rw-head"><span>Reward (parado)</span><b id="rw-total">0.000</b></div>
+      <canvas id="rw-spark" height="38"></canvas>
+      <div id="rw-terms"></div>
+    </div>
+
+    <div class="list-title">Límites por articulación</div>
+    <div id="bodylist"></div>
+  </aside>
+
+  <!-- ESCENA 3D -->
+  <div id="scene">
+    <div id="editmenu" class="hidden"></div>          <!-- menu flotante, debajo del gizmo -->
+  </div>
+  <div id="toast"></div>
+
+  <script type="module" src="/config.js"></script>
+</body>
+</html>

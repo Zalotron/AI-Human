@@ -1,0 +1,96 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0f; --panel: #17171a; --panel2: #1f1f23; --line: #2a2a30;
+  --txt: #e7e7ea; --dim: #8c8c94; --accent: #ff5a5a; --on-accent: #1e0606;
+  --ok: #46c46a; --warn: #e0a34a;
+  --x: #ff5d5d; --y: #5dff8f; --z: #5d8bff;   /* ejes: convencion RGB=XYZ (no es tema) */
+}
+html, body { height: 100%; background: var(--bg); color: var(--txt);
+  font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+body { display: flex; }
+
+/* ---------------- panel izquierdo ---------------- */
+#panel { width: 340px; min-width: 340px; height: 100vh; background: var(--panel);
+  border-right: 1px solid var(--line); display: flex; flex-direction: column;
+  padding: 14px 12px; gap: 10px; overflow: hidden; }
+.title { font-size: 18px; font-weight: 700; letter-spacing: .3px; }
+.title .accent { color: var(--accent); }
+.big-btn { width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+  background: var(--panel2); color: var(--txt); border-radius: 9px; cursor: pointer;
+  font-size: 14px; font-weight: 600; transition: background .12s, border-color .12s;
+  display: flex; align-items: center; justify-content: center; gap: 8px; }
+.big-btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.big-btn:hover { background: #26262c; }
+.big-btn.save { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.big-btn.save:hover { background: #ff6e6e; }
+.transport { display: flex; gap: 8px; }
+.transport .ui-btn.icon-btn { flex: 1; width: auto; height: 38px; }   /* botones reusados de la app principal */
+#hint { font-size: 11px; color: var(--dim); line-height: 1.45; padding: 2px 2px 4px; }
+.list-title { font-size: 12px; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--dim); margin-top: 4px; }
+
+/* ---------------- panel de reward (debug) ---------------- */
+#reward-panel { border: 1px solid var(--line); border-radius: 9px; background: var(--panel2);
+  padding: 9px 10px; flex: 0 0 auto; }
+.rw-head { display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
+.rw-head b { font-size: 20px; color: var(--txt); font-variant-numeric: tabular-nums; }
+#rw-spark { width: 100%; height: 38px; display: block; margin: 6px 0 7px; }
+#rw-terms { display: flex; flex-direction: column; gap: 2px; }
+.rw-term { display: flex; justify-content: space-between; font-size: 11px; color: var(--dim);
+  font-variant-numeric: tabular-nums; padding: 1px 4px; margin: 0 -4px; border-radius: 4px; }
+.rw-term .v { color: var(--txt); }
+.rw-term.pos .v { color: var(--ok); }         /* contribucion positiva (verde) */
+.rw-term.neg .v { color: var(--accent); }     /* contribucion negativa: penaliza (rojo acento) */
+.rw-term.hi { background: rgba(255,90,90,0.10); }   /* knee_hip resaltado (lo que se esta verificando) */
+
+/* ---------------- lista / accordion de cuerpos ---------------- */
+#bodylist { flex: 1 1 0; min-height: 0; overflow-y: scroll; display: flex; flex-direction: column;
+  gap: 3px; padding-right: 4px; }
+#bodylist::-webkit-scrollbar { width: 9px; }
+#bodylist::-webkit-scrollbar-track { background: #121214; border-radius: 5px; }
+#bodylist::-webkit-scrollbar-thumb { background: #33333a; border-radius: 5px; border: 2px solid #121214; }
+#bodylist::-webkit-scrollbar-thumb:hover { background: #3d3d45; }
+.body-row { border: 1px solid var(--line); border-radius: 8px; background: var(--panel2);
+  overflow: hidden; flex: 0 0 auto; }   /* NO encoger: si no, las filas se aplastan en vez de scrollear */
+.body-head { display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 10px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.body-head:hover { background: #26262c; }
+.body-row.sel { border-color: var(--accent); }
+.body-row.sel .body-head { background: #2e2024; }
+.body-head .sub { font-size: 11px; color: var(--dim); font-weight: 400; }
+/* filas de rango (SOLO LECTURA en el panel; la edicion es el menu flotante del viewport) */
+.body-body { display: block; padding: 3px 10px 8px; border-top: 1px solid var(--line); }
+.rng-line { display: flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 12px; }
+.axis-tag { width: 15px; height: 15px; border-radius: 4px; font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; color: #0d0d0f; flex: 0 0 auto; }
+.axis-tag.x { background: var(--x); } .axis-tag.y { background: var(--y); } .axis-tag.z { background: var(--z); }
+.rng-line .val { color: var(--dim); }
+.rng-line .cur { margin-left: auto; color: var(--warn); font-size: 11px; }
+
+/* MENU FLOTANTE de edicion (aparece sobre la parte seleccionada en el viewport) */
+#editmenu { position: absolute; z-index: 20; background: rgba(20,20,23,.97);
+  border: 1px solid var(--accent); border-radius: 10px; padding: 9px 11px; min-width: 196px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.55); pointer-events: auto; }
+#editmenu.hidden { display: none; }
+#editmenu .em-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+#editmenu .em-hint { font-size: 10px; color: var(--dim); margin: 2px 0 6px; }
+#editmenu .axis-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+#editmenu .axis-name { font-size: 11px; color: var(--dim); }
+#editmenu input { width: 52px; background: #101012; border: 1px solid var(--line); color: var(--txt);
+  border-radius: 5px; padding: 3px 5px; font-size: 12px; text-align: right; cursor: ew-resize;
+  -moz-appearance: textfield; appearance: textfield; }
+#editmenu input::-webkit-inner-spin-button, #editmenu input::-webkit-outer-spin-button {
+  -webkit-appearance: none; margin: 0; }               /* sin flechitas del spinner */
+#editmenu input:focus { outline: none; border-color: var(--accent); cursor: text; }
+#editmenu input:hover { border-color: #4a4a55; }
+#editmenu .cur { font-size: 11px; color: var(--warn); margin-left: auto; }
+#editmenu .unit { font-size: 10px; color: var(--dim); }
+
+/* ---------------- escena ---------------- */
+#scene { flex: 1; height: 100vh; position: relative; }
+#scene canvas { display: block; }
+#toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: #1f3a2a; border: 1px solid var(--ok); color: #cdefd6; padding: 9px 16px;
+  border-radius: 9px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+#toast.show { opacity: 1; }

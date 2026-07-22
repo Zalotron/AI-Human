@@ -1,0 +1,7 @@
+# Dependencias Python del venv de Windows (./venv) — para la VISUALIZACION (Run.bat).
+# El server corre la fisica MuJoCo (CPU, 1 env liviano) + la politica MJX (inferencia con
+# jax-cpu + red de Brax). El ENTRENAMIENTO es aparte, en GPU/WSL2 (ver mjx/requirements_mjx.txt).
+mujoco==3.2.5
+numpy
+jax          # CPU en Windows: inferencia de la politica (1 env, liviano)
+brax         # red de la politica PPO (make_ppo_networks / make_inference_fn)

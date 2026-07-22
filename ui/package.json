@@ -1,0 +1,14 @@
+{
+  "name": "toribash-humanoid-ui",
+  "version": "0.1.0",
+  "description": "UI de evaluacion (Electron + Three.js) del humanoide estilo Toribash",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "config": "electron main_config.js"
+  },
+  "dependencies": {
+    "electron": "^33.0.0",
+    "three": "^0.169.0"
+  }
+}

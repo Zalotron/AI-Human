@@ -1,0 +1,74 @@
+{
+  "_comment": "Configuracion central del proyecto. Edita ESTE archivo y lo leen tanto la visualizacion (Run.bat -> server.py) como el entrenamiento (mjx/train_mjx.py) al ARRANCAR. Reinicia la app/el training para tomar los cambios.",
+
+  "friction": {
+    "_comment": "Friccion de MuJoCo por objeto = [slide (deslizamiento), torsion, roll (rodadura)]. En un contacto MuJoCo usa el MAXIMO valor de los dos geoms que se tocan. Sobreescribe los valores del humanoid_smpl.xml.",
+    "floor": { "slide": 0.5, "torsion": 0.1, "roll": 0.1 },
+    "agent": { "slide": 1.5, "torsion": 0.1, "roll": 0.3 },
+    "box":   { "slide": 0.5, "torsion": 0.1, "roll": 0.3 }
+  },
+
+  "box": {
+    "_comment": "Caja proyectil (el boton de tirar). 'mass' en kg (se aplica al ARRANCAR -> reinicia Run.bat). 'speed' = rapidez HORIZONTAL hacia el personaje (m/s). 'vertical_velocity' = empuje vertical al lanzar: >0 hacia ARRIBA, 0 = plano, <0 hacia abajo (m/s). 'lead' = ANTICIPACION (0..1+): apunta a donde el torso VA A ESTAR cuando la caja llegue (usa su velocidad actual), para que NO le pase por el costado cuando el personaje se mueve durante el vuelo. 1.0 = interceptar (recomendado), 0 = apuntar a la posicion actual (como antes), >1 = sobre-anticipar. Aplica a la viz Y a la perturbacion del training. speed/vertical_velocity/lead se leen en CADA tiro (cambios en vivo, sin reiniciar; en training se leen al ARRANCAR). 'size' = factor de escala del tamano (1.0 = actual, 2.0 = el doble, 0.5 = la mitad; se aplica al ARRANCAR -> reinicia Run.bat). 'throw_every' = SOLO TRAINING: cada cuantos steps se le revolea una caja al personaje como perturbacion (0 = DESACTIVADO). Se lee al ARRANCAR el training. La var de entorno TRAIN_THROW_EVERY, si esta, lo pisa. La friccion de la caja esta arriba en friction.box.",
+    "mass": 5.0,
+    "speed": 25.0,
+    "vertical_velocity": 0.5,
+    "lead": 1.0,
+    "size": 2.0,
+    "throw_every": 100
+  },
+
+  "_self_collision": "true = los miembros del personaje NO se atraviesan (realista). false = se atraviesan, pero el training MJX va ~2-3x mas rapido. Solo afecta limbo-limbo: la CAJA y el PISO siempre chocan con el personaje. Se aplica al ARRANCAR -> reinicia.",
+  "self_collision": true,
+
+  "_self_friction": "FRICCION entre partes PROPIAS del personaje (auto-contacto). Controla el condim de los geoms del personaje. Valores: true = condim=3 en TODO el cuerpo (las partes se AGARRAN entre si, estilo Toribash) pero CARO (~duplica las filas del solver, nefc 846->1629). false = condim=1 en todo (auto-contactos RESBALAN); lo mas barato. 'pies_manos' = condim=3 SOLO en pies (Ankle+Toe) y manos (Wrist+Hand), el resto condim=1 -> la friccion de auto-contacto se calcula UNICAMENTE para lo que involucra pies/manos (no todo el cuerpo) => casi tan barato como false pero con friccion donde importa (apoyarse/empujarse/trabar con pies y manos). El PISO y la CAJA quedan SIEMPRE en condim=3, y como MuJoCo usa el MAX de los dos geoms, pie-piso / mano-piso / golpes MANTIENEN friccion en TODOS los modos -> pararse/caminar/golpes no cambian. Solo tiene efecto con self_collision=true. Se aplica al ARRANCAR -> reinicia.",
+  "self_friction": false,
+
+  "_joint_damping": "AMORTIGUACION viscosa de las juntas del personaje (los 57 DoF). Fuerza pasiva -damping*velocidad que se opone al movimiento PROPORCIONAL a la velocidad: MAS damping = movimientos menos WHIPPY/agresivos (baja la velocidad terminal de giro ~ torque_max/damping), SIN quitarle FUERZA al agente (el torque/gear queda igual, y al sostener una pose con velocidad~0 el damping es 0 => no afecta aguantar/empujar). MENOS damping = mas suelto/explosivo (pero cuidado: fue lo que estabilizo el training, bajarlo mucho puede reventar el qvel). El XML lo define en 3.0. Cambia la FISICA -> el checkpoint sigue cargando pero conviene un fine-tune (warm-start) para que la politica se adapte. Se aplica al ARRANCAR -> reinicia.",
+  "joint_damping": 3.0,
+
+  "_joint_armature": "ARMATURE (inercia de rotor) de las juntas del personaje (los 57 DoF). Suma inercia efectiva al DoF (como un volante en la junta): MAS armature = un mismo torque da MENOS aceleracion => la junta tarda mas en llegar a velocidad extrema => menos movimientos 'extremo-a-extremo en milisegundos', SIN tocar la FUERZA (el torque/gear queda igual; al sostener una pose no aporta => no afecta la fuerza estatica). A diferencia del damping, NO cambia la velocidad TERMINAL, frena la ACELERACION. El XML lo define en 0.15 (subido 15x desde 0.01 para frenar la explosion de qvel que cortaba el episodio -> bajarlo mucho reintroduce esa inestabilidad). Cambia la FISICA -> el checkpoint sigue cargando pero conviene un fine-tune (warm-start). Se aplica al ARRANCAR -> reinicia.",
+  "joint_armature": 1.0,
+
+  "_freeze": "CONGELAR grupos de articulaciones = accion multiplicada por 0 => torque 0 = 100% RELAJADO (esas partes cuelgan pasivas por gravedad; la politica NO las controla). true = congelado, false = el agente lo controla. Grupos: 'brazos' (hombros+claviculas+codos+munecas+manos), 'cabeza' (cuello+cabeza), 'torso_horizontal' (Chest/giro), 'torso_vertical' (Spine/adelante-atras), 'torso_lateral' (Torso/costado). OJO: congelar NO le ENSENA la pose a la red, le SACA el control (queda limp); si despues descongelas, el control de ese grupo arranca de cero. Lo respetan training Y viz (misma config) -> una politica entrenada con un grupo congelado se corre igual en la viz. Se aplica al ARRANCAR -> reinicia.",
+  "freeze": {
+    "brazos": false,
+    "cabeza": false,
+    "torso_horizontal": false,
+    "torso_vertical": false,
+    "torso_lateral": false
+  },
+
+  "audio": {
+    "_comment": "SOLO VIZ (Run.bat). Sonido de impacto: cuando algo golpea, la UI toca un audio ALEATORIO de assets/audio/<tipo>/ (body/ = golpe al personaje, box/ = golpe de la caja, floor/ = golpe contra el suelo) con volumen segun la fuerza del golpe. ADITIVO: cada superficie que participa suena (personaje contra el piso => body+floor; caja contra el piso => box+floor; caja contra el personaje => box+body). Para sumar/quitar sonidos: agrega o borra archivos (.wav/.mp3/.ogg) en esas carpetas (se toma al RESETEAR, sin tocar codigo). 'force_min' = fuerza (N) MINIMA para que un golpe suene (subilo si suena en cada mini-contacto). 'force_max' = fuerza (N) que da el volumen 100%; el volumen es una INTERPOLACION LINEAL fuerza/force_max entre 0 (fuerza 0) y 1 (fuerza >= force_max), asi que bajar force_max hace que golpes mas suaves ya suenen fuerte. 'cooldown' = segundos que un MISMO par de partes no vuelve a sonar (evita el zumbido del apoyo cuando algo queda tocando el piso). ATENUACION POR DISTANCIA de la camara (cuanto mas cerca esta la vista de la fuente, mas fuerte): 'dist_ref' = dentro de esta distancia (m) el volumen es full; 'dist_max' = mas alla queda en 'dist_min_gain' (0..1, volumen minimo lejos); entre medio interpola lineal. Poner dist_max <= dist_ref DESACTIVA la atenuacion por distancia. 'spatial' (true/false) = sonido ESPACIAL 3D binaural (HRTF): con auriculares se percibe la DIRECCION del golpe (izq/der/arriba/frente-atras) segun donde apunta la camara; false = mono (mismo nivel en ambos canales). Se leen al ARRANCAR (reinicia Run.bat).",
+    "force_min": 200.0,
+    "force_max": 20000.0,
+    "cooldown": 0.15,
+    "dist_ref": 2.5,
+    "dist_max": 12.0,
+    "dist_min_gain": 0.15,
+    "spatial": true
+  },
+
+  "rewards": {
+    "_comment": "Pesos del reward. Se leen al ARRANCAR (reinicia training/Run.bat). Reward = w_upright*core + w_pose*verticalidad*pose + w_relax*relax - w_knee_hip*deficit_rodilla - w_hip_y*twist_cadera. NO hay penalizador de contacto con el piso: el core (altura*verticalidad) + pose ya son incentivo de sobra para pararse, y asi el reward NO referencia el piso -> es INVARIANTE A LA SUPERFICIE (pararse sobre una caja/escalon da el mismo reward que en el piso). w_upright: nucleo = altura*verticalidad del torso (estar parado). w_pose: matchear la pose IDLE. w_relax: relajacion (menos torque = mas reward). pose_sharpness: que tan exigente el match de pose (mas alto = mas estricto, jala desde mas cerca). w_knee_hip: ACOPLAMIENTO cadera->rodilla. Castiga tener la rodilla mas ESTIRADA que la 'comoda' cuando la cadera flexiona hacia ADELANTE. La rodilla comoda crece lineal con la flexion de cadera: cadera 0deg -> rodilla comoda 0 (pierna estirada NO penaliza), cadera -90deg -> rodilla comoda = knee_at_hip90_deg. Penaliza el DEFICIT medio (rad) de flexion de rodilla de las 2 piernas. 0 = desactivado. knee_at_hip90_deg: grados de flexion de rodilla 'comoda' cuando la cadera esta a -90deg (define la pendiente = knee_at_hip90_deg/90). w_hip_y: castiga el TWIST de cadera (eje Y, rotacion interna/externa del muslo) -> empuja Hip_y a 0deg. Penaliza el promedio de |Hip_y| (rad) de las 2 piernas. 0 = desactivado. RAMPA DE ALTURA (nucleo 'core' = w_upright * altura_norm * verticalidad): la altura es la del pecho SOBRE LOS PIES (chest_z - min(pie_z)), NO absoluta -> invariante a la superficie. stand_height = altura relativa (m) a partir de la cual el reward de altura satura al MAXIMO (techo); fall_ref = altura relativa (m) donde el reward de altura es 0 (rampa lineal, clampeada 0..1). Parado el pecho-sobre-pies es ~1.22 m (> stand_height=1.1 -> ya satura); subir stand_height (ej. 1.2) exige pararse mas erguido. (Distinto de fall_height, umbral de 'caido' para terminar el episodio en training.)",
+    "w_upright": 1.0,
+    "w_pose": 2.0,
+    "w_relax": 0.3,
+    "pose_sharpness": 3.5,
+    "w_knee_hip": 1.0,
+    "knee_at_hip90_deg": 45.0,
+    "w_hip_y": 1.0,
+    "stand_height": 1.1,
+    "fall_ref": 0.4
+  },
+
+  "_pose_exclude": "Lista de textos que se IGNORAN en el reward de pose por MATCH DE SUBSTRING (como FREEZE): una junta se excluye si alguno de estos textos aparece en su nombre. Excluir = ese angulo NO aporta error NI cuenta -> la red NO es premiada ni castigada por matchear la pose IDLE ahi (solo la rige el relax). Podes poner un EJE puntual ('L_Knee_x' ignora solo ese eje) o una PARTE entera ('Shoulder' ignora L_Shoulder+R_Shoulder en x/y/z; 'Hand' ignora las manos; etc.). Sirve para NO forzar postura rigida (ej. rodillas/tobillos libres para recomponerse; brazos libres). Parado igual EMERGE por la altura del pecho. [] = pose completa. Lo respetan training Y viz. Se aplica al ARRANCAR -> reinicia.",
+  "pose_exclude": ["L_Hip_x", "R_Hip_x", "L_Knee_x", "R_Knee_x", "L_Ankle_x", "R_Ankle_x", "L_Toe_x", "R_Toe_x", "Shoulder", "Elbow", "Wrist", "Hand"],
+
+  "training": {
+    "_comment": "SOLO TRAINING (mjx/train_mjx.py). Se leen al ARRANCAR el training -> reinicia. Las variables de entorno equivalentes (TRAIN_UNROLL, TRAIN_ENT_TARGET), si estan seteadas, PISAN estos valores (para probes rapidos sin editar el JSON). 'unroll' = HORIZONTE DE CREDITO: cuantos steps por env se despliegan antes de cada update de PPO. Mas alto propaga mejor el reward tardio (clave para aprender equilibrio) pero usa mas VRAM (buffer = batch_size*num_minibatches*unroll = 256*24*unroll). 'ent_target' = ENTROPIA OBJETIVO H* del controlador de entropia: la loss apunta la entropia de la politica a este valor (atractor estable). Alto = mas exploracion (std mas ancha); bajo = mas determinista. Se mide sobre los 57 DoF (sigma=1 -> H~81; H*=25 -> sigma~0.37). La columna 'ent' del log debe quedar ~H*: si no llega, se puede subir ENT_BETA (env var TRAIN_ENT_BETA); si 'relax' se hace negativo (satura el tanh), bajarlo. ent_target=0 DESACTIVA el controlador y usa el coef de entropia fijo.",
+    "unroll": 50,
+    "ent_target": 25
+  }
+}

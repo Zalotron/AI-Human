@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Human — Eval</title>
+  <link rel="stylesheet" href="/style.css" />
+  <!-- import map: 'three' y 'three/addons/' se sirven localmente desde /vendor -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/three.module.js",
+      "three/addons/": "/vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="scene">
+    <div id="viewmode">
+      <button id="vm-char" class="active" title="Personaje (render 3D)" aria-label="Render">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="6.5" r="3.3"/>
+          <path d="M5.5 20.5v-.6a6.5 6.5 0 0 1 13 0v.6"/>
+        </svg>
+      </button>
+      <button id="vm-shapes" title="Shapes (esqueleto físico)" aria-label="Skeleton">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="3.6" r="2.1"/>
+          <line x1="12" y1="5.7" x2="12" y2="13"/>
+          <line x1="6" y1="9" x2="18" y2="9"/>
+          <line x1="12" y1="13" x2="7.5" y2="21"/>
+          <line x1="12" y1="13" x2="16.5" y2="21"/>
+          <circle cx="6" cy="9" r="1.1" fill="currentColor" stroke="none"/>
+          <circle cx="18" cy="9" r="1.1" fill="currentColor" stroke="none"/>
+          <circle cx="12" cy="13" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+    </div>
+    <button id="btn-throw" title="Revolear una caja al personaje (Q)" aria-label="Tirar caja">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.5 3.5 7v10L12 21.5 20.5 17V7z"/>
+        <path d="M3.5 7 12 11.5 20.5 7"/>
+        <path d="M12 11.5V21.5"/>
+      </svg>
+    </button>
+
+    <!-- herramientas ragdoll (arriba-derecha): trapo + gravedad 0 -->
+    <div id="tools">
+      <button id="btn-ragdoll" title="Ragdoll mode" aria-label="Ragdoll mode">
+        <!-- marioneta: barra de control + hilos + muñeco colgando -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="4" x2="20" y2="4"/>
+          <line x1="9" y1="4" x2="10.4" y2="8.4"/>
+          <line x1="15" y1="4" x2="13.6" y2="8.4"/>
+          <circle cx="12" cy="10" r="2"/>
+          <line x1="12" y1="12" x2="12" y2="15.5"/>
+          <line x1="12" y1="12.6" x2="8.6" y2="14.4"/>
+          <line x1="12" y1="12.6" x2="15.4" y2="14.4"/>
+          <line x1="12" y1="15.5" x2="9.6" y2="19.5"/>
+          <line x1="12" y1="15.5" x2="14.4" y2="19.5"/>
+        </svg>
+      </button>
+      <button id="btn-zerograv" title="0 gravity" aria-label="0 gravity" disabled>
+        <!-- flecha hacia abajo al piso, tachada = sin gravedad -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="3.5" x2="12" y2="13"/>
+          <path d="M8.5 9.5 L12 13 L15.5 9.5"/>
+          <line x1="5" y1="18" x2="19" y2="18"/>
+          <line x1="5.5" y1="4.5" x2="18.5" y2="17.5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- panel de estado / controles -->
+  <div id="hud">
+    <div class="title">AI <span class="accent">Human</span></div>
+
+    <div id="stats" class="collapsible collapsed">
+      <button id="stats-toggle" class="section-head" aria-expanded="false">
+        <span>Stats</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="section-body">
+        <div class="row"><span class="k">Episodio</span><span class="v" id="v-ep">0</span></div>
+        <div class="row"><span class="k">Tick</span><span class="v" id="v-step">0</span></div>
+        <div class="row"><span class="k">Altura (s/ pies)</span><span class="v" id="v-height">0.00 m</span></div>
+        <div class="row"><span class="k">Erguido</span><span class="v" id="v-upright">—</span></div>
+        <div class="row"><span class="k">Masa total</span><span class="v" id="v-mass">— kg</span></div>
+        <div class="row"><span class="k">Reward</span><span class="v" id="v-reward">0.00</span></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <label class="ui-check">
+        <input type="checkbox" id="chk-det" checked />
+        <span class="box"></span>
+        <span class="lbl">Determinista (argmax)</span>
+      </label>
+      <label class="ui-check">
+        <input type="checkbox" id="chk-random" />
+        <span class="box"></span>
+        <span class="lbl">Random pose (reset)</span>
+      </label>
+      <div class="transport">
+        <button id="btn-reset" class="ui-btn icon-btn" title="Reset (R)" aria-label="Reset">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+        <button id="btn-pause" class="ui-btn icon-btn" title="Pausa (espacio)" aria-label="Pausa/Play">
+          <svg id="ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>
+          </svg>
+        </button>
+        <div id="speeds" class="ui-seg">
+          <button data-fps="7.5">x0.25</button>
+          <button data-fps="15">x0.5</button>
+          <button data-fps="30" class="active">x1</button>
+          <button data-fps="60">x2</button>
+          <button data-fps="120">x4</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabs-panel">
+    <div class="ui-tabs">
+      <button id="tab-bars" class="ui-tab active">Articulaciones</button>
+      <button id="tab-body" class="ui-tab">Esfuerzo</button>
+    </div>
+
+    <div id="view-bars">
+      <div class="joints-title">Fuerza por articulación</div>
+      <div id="joints"></div>
+    </div>
+
+    <div id="view-body" style="display:none">
+      <div class="joints-title">Esfuerzo por extremidad</div>
+      <!-- el muñeco lo genera app.js (buildBodySVG) -->
+      <svg id="body-svg" viewBox="0 0 240 448" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="effort-legend">
+        <span>relajado</span><i class="grad"></i><span>máx esfuerzo</span>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div id="hint">arrastrar: orbitar · rueda: zoom · mantener ruedita: desplazar · click derecho: agarra · espacio: pausa · R: reset · Q: caja</div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
