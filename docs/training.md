@@ -26,7 +26,7 @@ backend `mjx`). Loop de PPO: `mjx/train_mjx.py`. Setup del venv `~/mjxenv`: `mjx
 | Nombre | Valor | Notas |
 |---|---|---|
 | `NUM_TIMESTEPS` | 200e6 | total de steps |
-| `MJX_NUM_ENVS` | **1024** | las .bat lo fijan en 1024. Debe cumplir `24576 % N == 0` (3072/2048/1536/1024...) y `batch_size*num_minibatches % N == 0` (6144 % 1024 = 6). **OJO histórico:** 1024/2048 llegaron a crashear por memoria en la 4090 (segfault/OOM del bloque contiguo); 256 estaba probado estable. Si segfaultea, bajar a 256. Techo de compilación ~3072. |
+| `MJX_NUM_ENVS` | **1024** | las .bat lo fijan en 1024. Debe cumplir `batch_size*num_minibatches % N == 0` → con la config actual (256·24) `6144 % N == 0` (256/384/512/768/1024/1536/2048/3072). **OJO histórico:** 1024/2048 llegaron a crashear por memoria en la 4090 (segfault/OOM del bloque contiguo); 256 estaba probado estable. Si segfaultea, bajar a 256. Techo de compilación ~3072. |
 | `TRAIN_EPISODE_LEN` | 2000 (normal) / 1000 (balance) | con γ=0.99 el horizonte efectivo es ~100 steps; episodios largos casi no cambian el aprendizaje pero retrasan las métricas. |
 | `NUM_MINIBATCH` | 24 | `batch_size*num_minibatches % num_envs == 0` (1024·24=24576). |
 | `UNROLL` (`training.unroll` / `TRAIN_UNROLL`) | **50** | horizonte de crédito: steps por env antes de cada update. **Se lee de `settings.json → training.unroll`** (default 50); `TRAIN_UNROLL` lo pisa. Más alto propaga mejor el reward tardío pero usa más VRAM (buffer = `batch_size·num_minibatches·unroll`). |

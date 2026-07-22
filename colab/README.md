@@ -20,7 +20,7 @@ Subí `colab/train_aihuman.ipynb` a [colab.research.google.com](https://colab.re
    **reanudar tras una desconexión** (Colab corta por inactividad / a las ~12 h).
 5. **Modo** — **arrancar de 0** (borra checkpoint + cache) **o continuar desde `.params`**
    (botón para **subir** tu archivo; reanuda desde ahí).
-6. **Hiperparámetros** — `NUM_ENVS` (T4: 256; debe dividir a 24576), `NUM_TIMESTEPS`, etc.
+6. **Hiperparámetros** — `NUM_ENVS` (T4: 256; debe dividir a 6144; L4/A100: 1024–3072), `NUM_TIMESTEPS`, `UNROLL`, etc.
 7. **Entrenar** — corre `mjx/train_mjx.py`. Guarda el checkpoint en cada eval.
 8. **Descargar** — baja el `.params` entrenado.
 
