@@ -28,6 +28,7 @@ Toribash/
 │   ├── requirements_mjx.txt
 │   └── README_MJX.md       # setup de WSL2 + cómo correr en GPU
 ├── colab/                  # notebook para entrenar en Google Colab (GPU en la nube)
+├── runpod/                 # script para entrenar en RunPod / VM Linux con GPU (terminal/SSH)
 ├── server.py               # corre sim + política; streamea estado 3D por SSE; sirve la UI
 ├── ui/                     # Electron + Three.js (render del personaje, HUD, controles, caja)
 ├── assets/                 # GLBs (smpl_male.glb, cardboard_box.glb)
@@ -63,6 +64,9 @@ después te bajás el `.params`. Notebook + instrucciones en [`colab/`](colab/RE
 Incluye elegir **arrancar de 0 o continuar** desde un `.params` (botón para subirlo), y persistir
 en Google Drive para reanudar tras una desconexión. El checkpoint se controla con la env var
 `MJX_SAVE_PATH` (default `mjx/mjx_policy.params`).
+
+Para **RunPod / cualquier VM Linux con GPU** (flujo por terminal/SSH, con `tmux` para runs largos):
+un solo comando, ver [`runpod/`](runpod/README.md).
 
 ## Visualizar
 

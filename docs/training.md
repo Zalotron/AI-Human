@@ -80,6 +80,10 @@ desde un `.params` subido, y opcionalmente persiste checkpoint + cache XLA en Go
 (`MJX_SAVE_PATH` + `JAX_COMPILATION_CACHE_DIR`) para reanudar tras una desconexión. La **viz** no
 corre en Colab (es de escritorio): ahí solo se entrena.
 
+Para **RunPod / VM Linux con GPU** (terminal/SSH), `runpod/train.sh` hace clone+install+run en un
+comando, con checkpoint + cache en el volumen persistente (`/workspace`) → reanuda solo tras
+preemption. Ver [`runpod/`](../runpod/README.md).
+
 ## Prints / cuándo aparecen las métricas
 
 - Con `log_training_metrics=True` imprime `[train]` por cada update de PPO (~cada 491.520 steps),

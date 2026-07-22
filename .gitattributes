@@ -1,0 +1,3 @@
+# Los scripts de shell SIEMPRE con line endings LF (si no, el CRLF de Windows
+# rompe el shebang/heredoc al correrlos en Linux, p.ej. RunPod).
+*.sh text eol=lf
