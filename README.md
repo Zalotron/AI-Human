@@ -27,6 +27,7 @@ Toribash/
 │   ├── train_mjx.py        # Brax PPO en GPU; guarda mjx_policy.params
 │   ├── requirements_mjx.txt
 │   └── README_MJX.md       # setup de WSL2 + cómo correr en GPU
+├── colab/                  # notebook para entrenar en Google Colab (GPU en la nube)
 ├── server.py               # corre sim + política; streamea estado 3D por SSE; sirve la UI
 ├── ui/                     # Electron + Three.js (render del personaje, HUD, controles, caja)
 ├── assets/                 # GLBs (smpl_male.glb, cardboard_box.glb)
@@ -51,6 +52,16 @@ ON (los miembros no se atraviesan). Reward v1 = pararse (core + pose IDLE + rela
 el modelo con `ResetModel.bat`. Al arrancar imprime `REANUDANDO` o `arrancando de 0`, avisa que
 está compilando (~1-3 min sin prints la 1ª vez) y luego una línea por eval: `step … | reward …`.
 
+## Entrenar en Colab (GPU en la nube)
+
+Si no tenés GPU local (o querés no ocupar la tuya), se entrena en **Google Colab**: el stack es
+JAX/MJX/Brax puro, ideal para una VM con GPU. La viz NO corre en Colab; ahí **solo se entrena** y
+después te bajás el `.params`. Notebook + instrucciones en [`colab/`](colab/README.md).
+
+Incluye elegir **arrancar de 0 o continuar** desde un `.params` (botón para subirlo), y persistir
+en Google Drive para reanudar tras una desconexión. El checkpoint se controla con la env var
+`MJX_SAVE_PATH` (default `mjx/mjx_policy.params`).
+
 ## Visualizar
 
 ```bat
@@ -66,3 +77,12 @@ Run.bat para tomar un checkpoint más nuevo del entrenamiento.
 
 > v2 en MJX (más adelante): recarga en vivo del checkpoint, contactos direccionales,
 > cfrc/push-recovery, caja en el entorno de entrenamiento.
+
+## Assets de terceros / licencias
+
+- El humanoide deriva del modelo **SMPL** ([smpl.is.tue.mpg.de](https://smpl.is.tue.mpg.de/)), de
+  uso **académico/no comercial** y que **requiere registro**. El modelo crudo `SMPL_MALE.pkl`
+  **no se incluye** en el repo (licencia + tamaño); descargalo aparte si necesitás regenerar el
+  humanoide/GLB con `tools/`.
+- Los mallados `assets/*.glb` (rig de **Mixamo**/Adobe) se incluyen para la visualización. Si vas a
+  reusar el repo, revisá las licencias de SMPL y Mixamo antes de redistribuir estos assets.

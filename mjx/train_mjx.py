@@ -144,7 +144,13 @@ REWARD_SCALE  = 0.1            # bajado 1.0->0.1: en episodios largos SIN cortar
 #   enormes (parado ~+5200 vs caido ~-800) -> rango gigante que el CRITICO no puede ajustar -> v_loss
 #   explota (se vio 8.4e9) -> ventajas basura -> la politica colapsa. Escalar el reward achica el target.
 SEED          = 0
-SAVE_PATH     = "mjx_policy.params"
+SAVE_PATH     = os.environ.get("MJX_SAVE_PATH", "mjx_policy.params")  # ruta del checkpoint (restore Y
+#   guardado periodico). Override con MJX_SAVE_PATH -> p.ej. una ruta ABSOLUTA en Google Drive para
+#   persistir el checkpoint entre sesiones de Colab (ver colab/ + docs/training.md). Default: relativo
+#   al cwd (mjx/ cuando se corre con `cd mjx && python train_mjx.py`).
+_save_dir = os.path.dirname(SAVE_PATH)
+if _save_dir:
+    os.makedirs(_save_dir, exist_ok=True)   # crea la carpeta (Drive/subdir) si no existe
 # TRAIN_TERM_NONFOOT=1 (lo setea TrainBalance.bat) -> modo BALANCE: el episodio termina
 # ni bien toca el piso algo que no sea un pie. Siempre arranca de la pose IDLE (el env MJX
 # ya spawnea idle). Sin la var -> modo normal (muere al caer, torso bajo).

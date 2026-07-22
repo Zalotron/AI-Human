@@ -67,6 +67,18 @@ Los pesos del reward y la auto-colisión se leen de `settings.json` al arrancar.
   (`restore[0].mean.shape`) contra `env.observation_size`. Si difieren (ej: cambió el tacto), **ignora
   el checkpoint y arranca de 0** avisando, en vez de crashear con error de shape.
 - Para arrancar de 0 en disco: `ResetModel.bat`.
+- **Ruta del checkpoint = env var `MJX_SAVE_PATH`** (default `mjx_policy.params`, relativo al cwd; con
+  `cd mjx && python train_mjx.py` → `mjx/mjx_policy.params`). Sirve para restore **y** guardado. Se pisa
+  con una ruta (ideal absoluta) para persistir en otro lado — p.ej. Google Drive en Colab. `train_mjx.py`
+  crea la carpeta si no existe.
+
+## Entrenar en Colab (GPU en la nube)
+
+El stack (JAX/MJX/Brax) corre igual en una VM con GPU. Notebook + instrucciones en
+[`colab/`](../colab/README.md): clona el repo, instala deps, permite **arrancar de 0 o continuar**
+desde un `.params` subido, y opcionalmente persiste checkpoint + cache XLA en Google Drive
+(`MJX_SAVE_PATH` + `JAX_COMPILATION_CACHE_DIR`) para reanudar tras una desconexión. La **viz** no
+corre en Colab (es de escritorio): ahí solo se entrena.
 
 ## Prints / cuándo aparecen las métricas
 
